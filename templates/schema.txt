@@ -1,0 +1,30 @@
+table program {
+  id integer [pk, increment]
+  country varchar
+  description varchar
+  code varchar
+  program_price float
+  price float
+}
+
+table student_personal_data {
+  id integer [pk, increment]
+  first_name varchar
+  last_name varchar
+  gender varchar
+  program integer [ref: > program.id]
+  date_of_application datetime
+  date_of_birth datetime
+  address_line_1 varchar
+  address_line_2 varchar
+  address_city varchar
+  address_postal_code varchar
+  address_country varchar
+  phone_extension varchar
+  phone_number varchar
+  nationality varchar
+  school_name varchar
+  school_type varchar
+  average_grades varchar
+}
+

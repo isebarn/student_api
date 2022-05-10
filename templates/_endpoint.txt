@@ -1,0 +1,34 @@
+@api.route("/controller")
+class CONTROLLERController(Resource):
+
+    @api.marshal_list_with(api.models.get('RESTX_MODEL'))
+    def get(self):
+        return models.MODEL.fetch(request.args)
+
+    @api.marshal_with(api.models.get('RESTX_MODEL'))
+    def post(self):
+        return models.MODEL(**request.get_json()).to_json()
+
+    @api.marshal_with(api.models.get('RESTX_MODEL'))
+    def put(self):
+        data = models.MODEL(**request.get_json()).save()
+        return data.to_json()
+
+    @api.marshal_with(api.models.get('RESTX_MODEL'))
+    def patch(self):
+        return models.MODEL.set(**request.get_json()).to_json()
+
+
+@api.route("/controller/<controller_id>")
+class BaseCONTROLLERController(Resource):
+
+    def delete(self, controller_id):
+        return models.MODEL.get(id=controller_id).delete()
+
+
+@api.route("/controller/base")
+class BaseCONTROLLERController(Resource):
+
+    @api.marshal_list_with(api.models.get('RESTX_MODEL_reference'))
+    def get(self):
+        return [x.to_json(False) for x in models.MODEL.get(**request.args)]
