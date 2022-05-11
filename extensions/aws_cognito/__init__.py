@@ -18,6 +18,8 @@ schema_attributes = client.describe_user_pool(UserPoolId=pool_id)["UserPool"][
     "SchemaAttributes"
 ]
 
+user_groups = client.list_groups(UserPoolId=pool_id).get("Groups", [])
+
 
 def dispatch_request(self, *args, **kwargs):
     # data = decode(
