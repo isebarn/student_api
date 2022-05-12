@@ -45,17 +45,21 @@ def user(access_token):
     return admin_get_user(user["Username"])
 
 
-# def sign_up(username, password, email, user_type):
-#     return client.sign_up(
-#         ClientId=client_id,
-#         Username=username,
-#         Password=password,
-#         UserAttributes=[
-#             {"Name": "email", "Value": email},
-#             {"Name": "custom:user_type", "Value": user_type},
-#         ],
-#         ClientMetadata={"String": "string"},
-#     )
+def sign_up(username, password, email):
+    client.sign_up(
+        ClientId=client_id,
+        Username=username,
+        Password=password,
+    )
+
+    admin_add_user_to_group(
+        **{
+            "username": username,
+            "group": max(user_groups, key=lambda x: x.get("Precedence")).get(
+                "GroupName"
+            ),
+        }
+    )
 
 
 def admin_add_user_to_group(*args, **kwargs):
