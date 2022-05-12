@@ -7,12 +7,54 @@ table program {
   price float
 }
 
+table airport_code {
+  id integer [pk, increment]
+  airport varchar
+  code varchar
+}
+
+table host_family {
+  id integer [pk, increment]
+  number integer
+  first_name varchar
+  last_name varchar  
+  address_line_1 varchar
+  address_line_2 varchar
+  address_city varchar
+  address_postal_code varchar
+  address_country varchar
+  email varchar
+  phone_extension varchar
+  phone_number varchar
+  airport_code integer [ref: > airport_code.id]
+  profile_link varchar  
+}
+
+table account {
+  id integer [pk, increment]
+  program integer [ref: > program.id]
+  deposit_prog float
+  second_installment float
+  third_installment float
+  final_installment float
+  total_prog float
+  credit_1 float
+  credit_2 float
+  formula varchar
+  deposit_paid float
+  second_installment_paid float
+  third_installment_paid float
+  final_installment_paid float
+  balance_owed float
+}
+
 table student_personal_data {
   id integer [pk, increment]
   first_name varchar
   last_name varchar
   gender varchar
   program integer [ref: > program.id]
+  airport_code integer [ref: > airport_code.id]
   date_of_application datetime
   date_of_birth datetime
   address_line_1 varchar
@@ -27,4 +69,5 @@ table student_personal_data {
   school_type varchar
   average_grades varchar
 }
+
 

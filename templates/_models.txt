@@ -14,7 +14,7 @@ from mongoengine import ReferenceField
 from mongoengine import ListField
 from mongoengine import DictField
 from mongoengine import signals
-from mongoengine import CASCADE
+from mongoengine import NULLIFY
 from mongoengine import DateTimeField as _DateTimeField
 from mongoengine import FloatField as _FloatField
 from mongoengine import IntField as _IntField

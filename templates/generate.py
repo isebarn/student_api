@@ -110,7 +110,7 @@ for line in [x.strip() for x in Lines]:
                 if ">" in line:
                     ref_field = line.split("> ")[-1].split(".")[0]
                     class_string.append(
-                        "ReferenceField({}, reverse_delete_rule=CASCADE)\n".format(
+                        "ReferenceField({}, reverse_delete_rule=NULLIFY)\n".format(
                             "".join([x.capitalize() for x in ref_field.split("_")])
                         )
                     )

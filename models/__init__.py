@@ -14,7 +14,7 @@ from mongoengine import ReferenceField
 from mongoengine import ListField
 from mongoengine import DictField
 from mongoengine import signals
-from mongoengine import CASCADE
+from mongoengine import NULLIFY
 from mongoengine import DateTimeField as _DateTimeField
 from mongoengine import FloatField as _FloatField
 from mongoengine import IntField as _IntField
@@ -34,7 +34,7 @@ class DateTimeField(_DateTimeField):
     class ISOFormat(DateTime):
         def format(self, value):
             try:
-                return value.get("$date")
+                return datetime.fromtimestamp(value.get("$date") / 1e3).isoformat()
             except ValueError as ve:
                 raise MarshallingError(ve)
 
@@ -365,11 +365,50 @@ class Program(Extended):
     price = FloatField()
 
 
+class AirportCode(Extended):
+    airport = StringField()
+    code = StringField()
+
+
+class HostFamily(Extended):
+    number = IntField()
+    first_name = StringField()
+    last_name = StringField()
+    address_line_1 = StringField()
+    address_line_2 = StringField()
+    address_city = StringField()
+    address_postal_code = StringField()
+    address_country = StringField()
+    email = StringField()
+    phone_extension = StringField()
+    phone_number = StringField()
+    airport_code = ReferenceField(AirportCode, reverse_delete_rule=NULLIFY)
+    profile_link = StringField()
+
+
+class Account(Extended):
+    program = ReferenceField(Program, reverse_delete_rule=NULLIFY)
+    deposit_prog = FloatField()
+    second_installment = FloatField()
+    third_installment = FloatField()
+    final_installment = FloatField()
+    total_prog = FloatField()
+    credit_1 = FloatField()
+    credit_2 = FloatField()
+    formula = StringField()
+    deposit_paid = FloatField()
+    second_installment_paid = FloatField()
+    third_installment_paid = FloatField()
+    final_installment_paid = FloatField()
+    balance_owed = FloatField()
+
+
 class StudentPersonalData(Extended):
     first_name = StringField()
     last_name = StringField()
     gender = StringField()
-    program = ReferenceField(Program, reverse_delete_rule=CASCADE)
+    program = ReferenceField(Program, reverse_delete_rule=NULLIFY)
+    airport_code = ReferenceField(AirportCode, reverse_delete_rule=NULLIFY)
     date_of_application = DateTimeField()
     date_of_birth = DateTimeField()
     address_line_1 = StringField()
@@ -385,22 +424,23 @@ class StudentPersonalData(Extended):
     average_grades = StringField()
 
 
+
 # def config():
-# signals.pre_save.connect(Class.pre_save, sender=Class)
-# signals.post_save.connect(Class.post_save, sender=Class)
+    # signals.pre_save.connect(Class.pre_save, sender=Class)
+    # signals.post_save.connect(Class.post_save, sender=Class)
 
-# seed
-# logging.info("Seeding database")
-# seed = load(open("models/seed.json"))
+    # seed
+    # logging.info("Seeding database")
+    # seed = load(open("models/seed.json"))
 
-# helper method to remove "_id" and "_cls" so I can compare json objects
-# from the db
-# def remove_meta_from_dict_item(item):
-#     item.pop("_cls")
-#     item.pop("_id")
-#     for key, value in item.items():
-#         if isinstance(value, dict):
-#             remove_meta_from_dict_item(value)
+    # helper method to remove "_id" and "_cls" so I can compare json objects
+    # from the db
+    # def remove_meta_from_dict_item(item):
+    #     item.pop("_cls")
+    #     item.pop("_id")
+    #     for key, value in item.items():
+    #         if isinstance(value, dict):
+    #             remove_meta_from_dict_item(value)
 
 
 # config()
