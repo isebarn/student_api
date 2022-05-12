@@ -2,6 +2,11 @@ from extensions.aws_cognito import client
 from extensions.aws_cognito import pool_id
 from extensions.aws_cognito import client_id
 from extensions.aws_cognito import schema_attributes
+from extensions.aws_cognito import user_groups
+
+
+def get_user_groups():
+    return user_groups
 
 
 def authenticate(username=None, password=None, session=None, refresh=None):
@@ -36,20 +41,25 @@ def authenticate(username=None, password=None, session=None, refresh=None):
 
 
 def user(access_token):
-    return client.get_user(AccessToken=access_token)
+    user = client.get_user(AccessToken=access_token)
+    return admin_get_user(user["Username"])
 
 
-# def sign_up(username, password, email, user_type):
-#     return client.sign_up(
-#         ClientId=client_id,
-#         Username=username,
-#         Password=password,
-#         UserAttributes=[
-#             {"Name": "email", "Value": email},
-#             {"Name": "custom:user_type", "Value": user_type},
-#         ],
-#         ClientMetadata={"String": "string"},
-#     )
+def sign_up(username, password, email):
+    client.sign_up(
+        ClientId=client_id,
+        Username=username,
+        Password=password,
+    )
+
+    admin_add_user_to_group(
+        **{
+            "username": username,
+            "group": max(user_groups, key=lambda x: x.get("Precedence")).get(
+                "GroupName"
+            ),
+        }
+    )
 
 
 def admin_add_user_to_group(*args, **kwargs):
@@ -58,8 +68,14 @@ def admin_add_user_to_group(*args, **kwargs):
     )
 
 
+def admin_remove_user_from_group(*args, **kwargs):
+    return client.admin_remove_user_from_group(
+        UserPoolId=pool_id, Username=kwargs["username"], GroupName=kwargs["group"]
+    )
+
+
 def admin_create_user(*args, **kwargs):
-    return {
+    user = {
         y["Name"].replace("custom:", ""): y["Value"]
         for y in client.admin_create_user(
             UserPoolId=pool_id,
@@ -79,6 +95,18 @@ def admin_create_user(*args, **kwargs):
             ],
         )["User"]["Attributes"]
     }
+
+    if any(user_groups):
+        admin_add_user_to_group(
+            **{
+                "username": kwargs["email"],
+                "group": max(user_groups, key=lambda x: x.get("Precedence")).get(
+                    "GroupName"
+                ),
+            }
+        )
+
+    return user
 
 
 def admin_update_user_attributes(user_id, **kwargs):
@@ -103,10 +131,18 @@ def list_users():
 
 def admin_get_user(user_id):
     return {
-        x["Name"].replace("custom:", ""): x["Value"]
-        for x in client.admin_get_user(UserPoolId=pool_id, Username=user_id)[
-            "UserAttributes"
-        ]
+        "attributes": {
+            x["Name"].replace("custom:", ""): x["Value"]
+            for x in client.admin_get_user(UserPoolId=pool_id, Username=user_id)[
+                "UserAttributes"
+            ]
+        },
+        "groups": [
+            {"group": x["GroupName"], "precedence": x["Precedence"]}
+            for x in client.admin_list_groups_for_user(
+                UserPoolId=pool_id, Username=user_id
+            ).get("Groups", [])
+        ],
     }
 
 

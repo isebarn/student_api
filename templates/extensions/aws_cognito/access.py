@@ -6,8 +6,12 @@ from flask import Flask
 from flask import request
 from flask_restx import Namespace
 from flask_restx.fields import String
+from flask_restx.fields import Integer
+from flask_restx.fields import Raw
 from flask_restx.fields import DateTime
 from flask_restx.fields import Boolean
+from flask_restx.fields import Nested
+from flask_restx.fields import List
 from flask_restx.fields import Float as Number
 from flask import g
 
@@ -19,17 +23,34 @@ from extensions.aws_cognito.methods import user
 
 
 api = Namespace("aws_cognito/access")
+mapper = {
+    "String": String,
+    "Raw": Raw,
+    "DateTime": DateTime,
+    "Boolean": Boolean,
+}
 
 
 @api.route("/user")
 class UserController(Resource):
-    user_model = api.model(
-        "AccessUserModel",
+    user_attributes_model = api.model(
+        "aws_cognito_management_user_attributes_model",
         {
-            **{
-                x["Name"].replace("custom:", ""): eval(x["AttributeDataType"])
-                for x in schema_attributes
-            }
+            x["Name"].replace("custom:", ""): mapper[x["AttributeDataType"]]
+            for x in schema_attributes
+            if x["AttributeDataType"] in mapper
+        },
+    )
+
+    user_group_model = api.model(
+        "aws_cognito_user_group_model", {"group": String, "precedence": Integer}
+    )
+
+    user_model = api.model(
+        "aws_cognito_management_user_model",
+        {
+            "attributes": Nested(user_attributes_model),
+            "groups": List(Nested(user_group_model)),
         },
     )
 
@@ -40,10 +61,7 @@ class UserController(Resource):
             return "AccessToken missing"
 
         token = token.replace("Bearer ", "")
-        return {
-            x["Name"].replace("custom:", ""): x["Value"]
-            for x in user(token)["UserAttributes"]
-        }
+        return user(token)
 
 
 @api.route("/login")
