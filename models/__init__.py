@@ -419,6 +419,7 @@ class StudentPersonalData(Extended):
     first_name = StringField()
     last_name = StringField()
     gender = StringField()
+    email = StringField()
     program = ReferenceField(Program, reverse_delete_rule=NULLIFY)
     airport_code = ReferenceField(AirportCode, reverse_delete_rule=NULLIFY)
     date_of_application = DateTimeField()
