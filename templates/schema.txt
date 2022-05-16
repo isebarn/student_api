@@ -13,6 +13,19 @@ table airport_code {
   code varchar
 }
 
+table flight_info {
+  id integer [pk, increment]
+  airport_code integer [ref: > airport_code.id]
+  depart_date datetime
+  depart_time varchar
+  depart_flight_number varchar  
+  depart_airline varchar
+  return_date datetime
+  return_time varchar
+  return_flight_number varchar  
+  return_airline varchar
+}
+
 table host_family {
   id integer [pk, increment]
   number integer

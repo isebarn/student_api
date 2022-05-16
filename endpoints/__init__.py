@@ -42,6 +42,9 @@ program_full = api.model('program', models.Program.model(api))
 airport_code_base = api.model('airport_code_base', models.AirportCode.base())
 airport_code_reference = api.model('airport_code_reference', models.AirportCode.reference())
 airport_code_full = api.model('airport_code', models.AirportCode.model(api))
+flight_info_base = api.model('flight_info_base', models.FlightInfo.base())
+flight_info_reference = api.model('flight_info_reference', models.FlightInfo.reference())
+flight_info_full = api.model('flight_info', models.FlightInfo.model(api))
 host_family_base = api.model('host_family_base', models.HostFamily.base())
 host_family_reference = api.model('host_family_reference', models.HostFamily.reference())
 host_family_full = api.model('host_family', models.HostFamily.model(api))
@@ -122,6 +125,41 @@ class BaseAirportCodeController(Resource):
     @api.marshal_list_with(api.models.get('airport_code_reference'))
     def get(self):
         return [x.to_json(False) for x in models.AirportCode.get(**request.args)]
+
+@api.route("/flight_info")
+class FlightInfoController(Resource):
+
+    @api.marshal_list_with(api.models.get('flight_info'))
+    def get(self):
+        return models.FlightInfo.fetch(request.args)
+
+    @api.marshal_with(api.models.get('flight_info'))
+    def post(self):
+        return models.FlightInfo(**request.get_json()).to_json()
+
+    @api.marshal_with(api.models.get('flight_info'))
+    def put(self):
+        data = models.FlightInfo(**request.get_json()).save()
+        return data.to_json()
+
+    @api.marshal_with(api.models.get('flight_info'))
+    def patch(self):
+        return models.FlightInfo.set(**request.get_json()).to_json()
+
+
+@api.route("/flight_info/<flight_info_id>")
+class BaseFlightInfoController(Resource):
+
+    def delete(self, flight_info_id):
+        return models.FlightInfo.get(id=flight_info_id).delete()
+
+
+@api.route("/flight_info/base")
+class BaseFlightInfoController(Resource):
+
+    @api.marshal_list_with(api.models.get('flight_info_reference'))
+    def get(self):
+        return [x.to_json(False) for x in models.FlightInfo.get(**request.args)]
 
 @api.route("/host_family")
 class HostFamilyController(Resource):

@@ -370,6 +370,18 @@ class AirportCode(Extended):
     code = StringField()
 
 
+class FlightInfo(Extended):
+    airport_code = ReferenceField(AirportCode, reverse_delete_rule=NULLIFY)
+    depart_date = DateTimeField()
+    depart_time = StringField()
+    depart_flight_number = StringField()
+    depart_airline = StringField()
+    return_date = DateTimeField()
+    return_time = StringField()
+    return_flight_number = StringField()
+    return_airline = StringField()
+
+
 class HostFamily(Extended):
     number = IntField()
     first_name = StringField()
