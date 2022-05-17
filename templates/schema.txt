@@ -69,6 +69,7 @@ table student_personal_data {
   email varchar
   program integer [ref: > program.id]
   airport_code integer [ref: > airport_code.id]
+  host_family integer [ref: > host_family.id]
   date_of_application datetime
   date_of_birth datetime
   address_line_1 varchar
