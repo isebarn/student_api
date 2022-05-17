@@ -34,7 +34,7 @@ class DateTimeField(_DateTimeField):
     class ISOFormat(DateTime):
         def format(self, value):
             try:
-                return datetime.fromtimestamp(value.get("$date") / 1e3).isoformat()
+                return value.get("$date")
             except ValueError as ve:
                 raise MarshallingError(ve)
 
@@ -352,7 +352,14 @@ class Extended(Document):
                 list(map(lambda x: x.update({key: values[x[key]]}), data))
 
             else:
-                list(map(lambda x: x.update({key: {"_id": x[key]}}), data))
+                list(
+                    map(
+                        lambda x: x.update(
+                            {key: ({"_id": x.get(key)} if key in x else None)}
+                        ),
+                        data,
+                    )
+                )
 
         return data
 

@@ -59,7 +59,7 @@ student_personal_data_full = api.model('student_personal_data', models.StudentPe
 @api.route("/program")
 class ProgramController(Resource):
 
-    @api.marshal_list_with(api.models.get('program'))
+    @api.marshal_list_with(api.models.get('program'), skip_none=True)
     def get(self):
         return models.Program.fetch(request.args)
 
@@ -94,7 +94,7 @@ class BaseProgramController(Resource):
 @api.route("/airport_code")
 class AirportCodeController(Resource):
 
-    @api.marshal_list_with(api.models.get('airport_code'))
+    @api.marshal_list_with(api.models.get('airport_code'), skip_none=True)
     def get(self):
         return models.AirportCode.fetch(request.args)
 
@@ -129,7 +129,7 @@ class BaseAirportCodeController(Resource):
 @api.route("/flight_info")
 class FlightInfoController(Resource):
 
-    @api.marshal_list_with(api.models.get('flight_info'))
+    @api.marshal_list_with(api.models.get('flight_info'), skip_none=True)
     def get(self):
         return models.FlightInfo.fetch(request.args)
 
@@ -164,7 +164,7 @@ class BaseFlightInfoController(Resource):
 @api.route("/host_family")
 class HostFamilyController(Resource):
 
-    @api.marshal_list_with(api.models.get('host_family'))
+    @api.marshal_list_with(api.models.get('host_family'), skip_none=True)
     def get(self):
         return models.HostFamily.fetch(request.args)
 
@@ -199,7 +199,7 @@ class BaseHostFamilyController(Resource):
 @api.route("/account")
 class AccountController(Resource):
 
-    @api.marshal_list_with(api.models.get('account'))
+    @api.marshal_list_with(api.models.get('account'), skip_none=True)
     def get(self):
         return models.Account.fetch(request.args)
 
@@ -234,7 +234,7 @@ class BaseAccountController(Resource):
 @api.route("/student_personal_data")
 class StudentPersonalDataController(Resource):
 
-    @api.marshal_list_with(api.models.get('student_personal_data'))
+    @api.marshal_list_with(api.models.get('student_personal_data'), skip_none=True)
     def get(self):
         return models.StudentPersonalData.fetch(request.args)
 
