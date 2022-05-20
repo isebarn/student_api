@@ -7,15 +7,15 @@ table program {
   price float
 }
 
-table airport_code {
+table airport {
   id integer [pk, increment]
-  airport varchar
+  name varchar
   code varchar
 }
 
 table flight_info {
   id integer [pk, increment]
-  airport_code integer [ref: > airport_code.id]
+  airport integer [ref: > airport.id]
   depart_date datetime
   depart_time varchar
   depart_flight_number varchar  
@@ -39,7 +39,7 @@ table host_family {
   email varchar
   phone_extension varchar
   phone_number varchar
-  airport_code integer [ref: > airport_code.id]
+  airport integer [ref: > airport.id]
   profile_link varchar  
 }
 
@@ -68,7 +68,7 @@ table student_personal_data {
   gender varchar
   email varchar
   program integer [ref: > program.id]
-  airport_code integer [ref: > airport_code.id]
+  airport integer [ref: > airport.id]
   host_family integer [ref: > host_family.id]
   date_of_application datetime
   date_of_birth datetime
@@ -83,6 +83,22 @@ table student_personal_data {
   school_name varchar
   school_type varchar
   average_grades varchar
+  father_first_name varchar
+  father_last_name varchar 
+  father_address_line_1 varchar
+  father_address_line_2 varchar
+  father_address_city varchar
+  father_address_postal_code varchar
+  father_address_country varchar
+  mother_first_name varchar
+  mother_last_name varchar 
+  mother_address_line_1 varchar
+  mother_address_line_2 varchar
+  mother_address_city varchar
+  mother_address_postal_code varchar
+  mother_address_country varchar  
+  allergies varchar
+  interview datetime
 }
 
 
