@@ -26,6 +26,19 @@ table flight_info {
   return_airline varchar
 }
 
+table host_family_child {
+  id integer [pk, increment]
+  name varchar
+  gender varchar
+}
+
+table host_family_pet {
+  id integer [pk, increment]
+  name varchar
+  type varchar
+  inside boolean
+}
+
 table host_family {
   id integer [pk, increment]
   number integer
@@ -47,22 +60,8 @@ table host_family {
   address_country varchar
   phone_extension varchar
   phone_number varchar
-  child_1_name varchar
-  child_1_gender varchar
-  child_2_name varchar
-  child_2_gender varchar
-  child_3_name varchar
-  child_3_gender varchar
-  child_4_name varchar
-  child_4_gender varchar   
-  pet_1 varchar
-  pet_1_inside boolean
-  pet_2 varchar
-  pet_2_inside boolean
-  pet_3 varchar
-  pet_3_inside boolean
-  pet_4 varchar
-  pet_4_inside boolean
+  host_family_child [ref: < host_family_child.id]
+  host_family_pet [ref: < host_family_pet.id]
   smoking boolean
   airport integer [ref: > airport.id]
   profile_link varchar
@@ -132,16 +131,4 @@ table student_personal_data {
   mother_address_country varchar  
   allergies varchar
   interview datetime
-}
-
-
-table child {
-  id integer [pk, increment]
-  name varchar
-}
-
-table parent {
-  id integer [pk, increment]
-  name varchar
-  child [ref: < child.id]
 }

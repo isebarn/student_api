@@ -107,21 +107,7 @@ class Extended(Document):
                 *args, **{k: v for k, v in kwargs.items() if not isinstance(v, dict)}
             )
             for key, value in self._fields.items():
-
-                if isinstance(value, ListField) and key in kwargs:
-
-                    setattr(
-                        self,
-                        key,
-                        [
-                            ObjectId(x.get("id"))
-                            if isinstance(x, dict)
-                            else ObjectId(x)
-                            for x in kwargs[key]
-                        ],
-                    )
-
-                elif isinstance(value, ReferenceField) and key in kwargs:
+                if isinstance(value, ReferenceField) and key in kwargs:
                     # link to existing
                     if isinstance(kwargs[key], Document):
                         setattr(self, key, kwargs[key])
@@ -179,9 +165,11 @@ class Extended(Document):
         for key, value in kwargs.items():
 
             if isinstance(value, list) and any(value):
-                string_object_ids = [x.get("id", {}).get("$oid") for x in value]
+                string_object_ids = [
+                    x.get("id") if isinstance(x, dict) else x for x in value
+                ]
                 if all(map(lambda x: ObjectId.is_valid(x), string_object_ids)):
-                    value = [ObjectId(x) for x in string_object_ids]
+                    kwargs[key] = [ObjectId(x) for x in string_object_ids]
 
             elif isinstance(value, dict) and "id" in value:
                 kwargs[key] = value["id"]
@@ -325,14 +313,14 @@ class Extended(Document):
                 if isinstance(instance, ReferenceField)
             },
             **{
-                field: List(
-                    Nested(
-                        api.models.get(
-                            instance.field.document_type_obj._class_name.lower()
-                        ),
-                        skip_none=True,
-                    ),
-                )
+                field: Raw()
+                #     Nested(
+                #         api.models.get(
+                #             instance.field.document_type_obj._class_name.lower()
+                #         ),
+                #         skip_none=True,
+                #     ),
+                # )
                 for field, instance in cls._fields.items()
                 if isinstance(instance, ListField)
             },
@@ -379,6 +367,7 @@ class Extended(Document):
                 )
 
                 values = {x["id"]: x for x in values}
+
                 for item in data:
                     item.update({key: [values[x] for x in item[key]]})
 
@@ -446,6 +435,17 @@ class FlightInfo(Extended):
     return_airline = StringField()
 
 
+class HostFamilyChild(Extended):
+    name = StringField()
+    gender = StringField()
+
+
+class HostFamilyPet(Extended):
+    name = StringField()
+    type = StringField()
+    inside = BooleanField(default=False)
+
+
 class HostFamily(Extended):
     number = IntField()
     family_name = StringField()
@@ -466,22 +466,8 @@ class HostFamily(Extended):
     address_country = StringField()
     phone_extension = StringField()
     phone_number = StringField()
-    child_1_name = StringField()
-    child_1_gender = StringField()
-    child_2_name = StringField()
-    child_2_gender = StringField()
-    child_3_name = StringField()
-    child_3_gender = StringField()
-    child_4_name = StringField()
-    child_4_gender = StringField()
-    pet_1 = StringField()
-    pet_1_inside = BooleanField(default=False)
-    pet_2 = StringField()
-    pet_2_inside = BooleanField(default=False)
-    pet_3 = StringField()
-    pet_3_inside = BooleanField(default=False)
-    pet_4 = StringField()
-    pet_4_inside = BooleanField(default=False)
+    host_family_child = ListField(ReferenceField(HostFamilyChild))
+    host_family_pet = ListField(ReferenceField(HostFamilyPet))
     smoking = BooleanField(default=False)
     airport = ReferenceField(Airport, reverse_delete_rule=NULLIFY)
     profile_link = StringField()
@@ -549,15 +535,6 @@ class StudentPersonalData(Extended):
     mother_address_country = StringField()
     allergies = StringField()
     interview = DateTimeField()
-
-
-class Child(Extended):
-    name = StringField()
-
-
-class Parent(Extended):
-    name = StringField()
-    child = ListField(ReferenceField(Child))
 
 
 # def config():

@@ -45,6 +45,12 @@ airport_full = api.model('airport', models.Airport.model(api))
 flight_info_base = api.model('flight_info_base', models.FlightInfo.base())
 flight_info_reference = api.model('flight_info_reference', models.FlightInfo.reference())
 flight_info_full = api.model('flight_info', models.FlightInfo.model(api))
+host_family_child_base = api.model('host_family_child_base', models.HostFamilyChild.base())
+host_family_child_reference = api.model('host_family_child_reference', models.HostFamilyChild.reference())
+host_family_child_full = api.model('host_family_child', models.HostFamilyChild.model(api))
+host_family_pet_base = api.model('host_family_pet_base', models.HostFamilyPet.base())
+host_family_pet_reference = api.model('host_family_pet_reference', models.HostFamilyPet.reference())
+host_family_pet_full = api.model('host_family_pet', models.HostFamilyPet.model(api))
 host_family_base = api.model('host_family_base', models.HostFamily.base())
 host_family_reference = api.model('host_family_reference', models.HostFamily.reference())
 host_family_full = api.model('host_family', models.HostFamily.model(api))
@@ -54,12 +60,6 @@ account_full = api.model('account', models.Account.model(api))
 student_personal_data_base = api.model('student_personal_data_base', models.StudentPersonalData.base())
 student_personal_data_reference = api.model('student_personal_data_reference', models.StudentPersonalData.reference())
 student_personal_data_full = api.model('student_personal_data', models.StudentPersonalData.model(api))
-child_base = api.model('child_base', models.Child.base())
-child_reference = api.model('child_reference', models.Child.reference())
-child_full = api.model('child', models.Child.model(api))
-parent_base = api.model('parent_base', models.Parent.base())
-parent_reference = api.model('parent_reference', models.Parent.reference())
-parent_full = api.model('parent', models.Parent.model(api))
 
 
 @api.route("/program")
@@ -176,6 +176,82 @@ class BaseFlightInfoController(Resource):
     def get(self):
         return [x.to_json(False) for x in models.FlightInfo.get(**request.args)]
 
+@api.route("/host_family_child")
+class HostFamilyChildController(Resource):
+
+    @api.marshal_list_with(api.models.get('host_family_child'), skip_none=True)
+    def get(self):
+        return models.HostFamilyChild.fetch(request.args)
+
+    @api.marshal_with(api.models.get('host_family_child'), skip_none=True)
+    def post(self):
+        return models.HostFamilyChild(**request.get_json()).to_json()
+
+    @api.marshal_with(api.models.get('host_family_child'), skip_none=True)
+    def put(self):
+        data = models.HostFamilyChild.update(**request.get_json())
+        return data.to_json()
+
+    @api.marshal_with(api.models.get('host_family_child'), skip_none=True)
+    def patch(self):
+        return models.HostFamilyChild.set(**request.get_json()).to_json()
+
+
+@api.route("/host_family_child/<host_family_child_id>")
+class BaseHostFamilyChildController(Resource):
+    @api.marshal_with(api.models.get("host_family_child"), skip_none=True)
+    def get(self, host_family_child_id):
+        return models.HostFamilyChild.objects.get(id=host_family_child_id)
+
+    def delete(self, host_family_child_id):
+        return models.HostFamilyChild.get(id=host_family_child_id).delete()
+
+
+@api.route("/host_family_child/base")
+class BaseHostFamilyChildController(Resource):
+
+    @api.marshal_list_with(api.models.get('host_family_child_reference'))
+    def get(self):
+        return [x.to_json(False) for x in models.HostFamilyChild.get(**request.args)]
+
+@api.route("/host_family_pet")
+class HostFamilyPetController(Resource):
+
+    @api.marshal_list_with(api.models.get('host_family_pet'), skip_none=True)
+    def get(self):
+        return models.HostFamilyPet.fetch(request.args)
+
+    @api.marshal_with(api.models.get('host_family_pet'), skip_none=True)
+    def post(self):
+        return models.HostFamilyPet(**request.get_json()).to_json()
+
+    @api.marshal_with(api.models.get('host_family_pet'), skip_none=True)
+    def put(self):
+        data = models.HostFamilyPet.update(**request.get_json())
+        return data.to_json()
+
+    @api.marshal_with(api.models.get('host_family_pet'), skip_none=True)
+    def patch(self):
+        return models.HostFamilyPet.set(**request.get_json()).to_json()
+
+
+@api.route("/host_family_pet/<host_family_pet_id>")
+class BaseHostFamilyPetController(Resource):
+    @api.marshal_with(api.models.get("host_family_pet"), skip_none=True)
+    def get(self, host_family_pet_id):
+        return models.HostFamilyPet.objects.get(id=host_family_pet_id)
+
+    def delete(self, host_family_pet_id):
+        return models.HostFamilyPet.get(id=host_family_pet_id).delete()
+
+
+@api.route("/host_family_pet/base")
+class BaseHostFamilyPetController(Resource):
+
+    @api.marshal_list_with(api.models.get('host_family_pet_reference'))
+    def get(self):
+        return [x.to_json(False) for x in models.HostFamilyPet.get(**request.args)]
+
 @api.route("/host_family")
 class HostFamilyController(Resource):
 
@@ -289,80 +365,4 @@ class BaseStudentPersonalDataController(Resource):
     @api.marshal_list_with(api.models.get('student_personal_data_reference'))
     def get(self):
         return [x.to_json(False) for x in models.StudentPersonalData.get(**request.args)]
-
-@api.route("/child")
-class ChildController(Resource):
-
-    @api.marshal_list_with(api.models.get('child'), skip_none=True)
-    def get(self):
-        return models.Child.fetch(request.args)
-
-    @api.marshal_with(api.models.get('child'), skip_none=True)
-    def post(self):
-        return models.Child(**request.get_json()).to_json()
-
-    @api.marshal_with(api.models.get('child'), skip_none=True)
-    def put(self):
-        data = models.Child.update(**request.get_json())
-        return data.to_json()
-
-    @api.marshal_with(api.models.get('child'), skip_none=True)
-    def patch(self):
-        return models.Child.set(**request.get_json()).to_json()
-
-
-@api.route("/child/<child_id>")
-class BaseChildController(Resource):
-    @api.marshal_with(api.models.get("child"), skip_none=True)
-    def get(self, child_id):
-        return models.Child.objects.get(id=child_id)
-
-    def delete(self, child_id):
-        return models.Child.get(id=child_id).delete()
-
-
-@api.route("/child/base")
-class BaseChildController(Resource):
-
-    @api.marshal_list_with(api.models.get('child_reference'))
-    def get(self):
-        return [x.to_json(False) for x in models.Child.get(**request.args)]
-
-@api.route("/parent")
-class ParentController(Resource):
-
-    @api.marshal_list_with(api.models.get('parent'), skip_none=True)
-    def get(self):
-        return models.Parent.fetch(request.args)
-
-    @api.marshal_with(api.models.get('parent'), skip_none=True)
-    def post(self):
-        return models.Parent(**request.get_json()).to_json()
-
-    @api.marshal_with(api.models.get('parent'), skip_none=True)
-    def put(self):
-        data = models.Parent.update(**request.get_json())
-        return data.to_json()
-
-    @api.marshal_with(api.models.get('parent'), skip_none=True)
-    def patch(self):
-        return models.Parent.set(**request.get_json()).to_json()
-
-
-@api.route("/parent/<parent_id>")
-class BaseParentController(Resource):
-    @api.marshal_with(api.models.get("parent"), skip_none=True)
-    def get(self, parent_id):
-        return models.Parent.objects.get(id=parent_id)
-
-    def delete(self, parent_id):
-        return models.Parent.get(id=parent_id).delete()
-
-
-@api.route("/parent/base")
-class BaseParentController(Resource):
-
-    @api.marshal_list_with(api.models.get('parent_reference'))
-    def get(self):
-        return [x.to_json(False) for x in models.Parent.get(**request.args)]
 
