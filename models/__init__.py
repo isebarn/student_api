@@ -104,9 +104,34 @@ class Extended(Document):
 
         else:  # Create new document and recursively create or link to existing ReferenceField docs
             super(Document, self).__init__(
-                *args, **{k: v for k, v in kwargs.items() if not isinstance(v, dict)}
+                *args,
+                **{
+                    k: v
+                    for k, v in kwargs.items()
+                    if not (isinstance(v, dict) or isinstance(v, list))
+                }
             )
             for key, value in self._fields.items():
+                if isinstance(value, ListField) and key in kwargs:
+                    for (i, item) in enumerate(kwargs.get(key, [])):
+                        if isinstance(kwargs[key], Document):
+                            continue
+
+                        elif isinstance(item, dict) and "id" in item:
+                            kwargs[key][i] = value.field.document_type_obj.objects.get(
+                                id=item["id"]
+                            )
+
+                        elif isinstance(item, str) and ObjectId.is_valid(item):
+                            kwargs[key][i] = value.field.document_type_obj.objects.get(
+                                id=item
+                            )
+
+                        else:
+                            kwargs[key][i] = value.field.document_type_obj(**item)
+
+                    setattr(self, key, kwargs[key])
+
                 if isinstance(value, ReferenceField) and key in kwargs:
                     # link to existing
                     if isinstance(kwargs[key], Document):
