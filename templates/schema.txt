@@ -29,18 +29,51 @@ table flight_info {
 table host_family {
   id integer [pk, increment]
   number integer
-  first_name varchar
-  last_name varchar  
+  family_name varchar
+  father_first_name varchar
+  father_last_name varchar 
+  father_age integer
+  father_occupation varchar
+  father_email varchar
+  mother_first_name varchar
+  mother_last_name varchar 
+  mother_age integer
+  mother_occupation varchar
+  mother_email varchar
   address_line_1 varchar
   address_line_2 varchar
   address_city varchar
   address_postal_code varchar
   address_country varchar
-  email varchar
   phone_extension varchar
   phone_number varchar
+  child_1_name varchar
+  child_1_gender varchar
+  child_2_name varchar
+  child_2_gender varchar
+  child_3_name varchar
+  child_3_gender varchar
+  child_4_name varchar
+  child_4_gender varchar   
+  pet_1 varchar
+  pet_1_inside boolean
+  pet_2 varchar
+  pet_2_inside boolean
+  pet_3 varchar
+  pet_3_inside boolean
+  pet_4 varchar
+  pet_4_inside boolean
+  smoking boolean
   airport integer [ref: > airport.id]
-  profile_link varchar  
+  profile_link varchar
+  school_name varchar
+  school_address_line_1 varchar
+  school_address_line_2 varchar
+  school_address_city varchar
+  school_address_postal_code varchar
+  school_address_country varchar  
+  school_contact varchar
+  school_email varchar
 }
 
 table account {
@@ -102,3 +135,13 @@ table student_personal_data {
 }
 
 
+table child {
+  id integer [pk, increment]
+  name varchar
+}
+
+table parent {
+  id integer [pk, increment]
+  name varchar
+  child [ref: < child.id]
+}

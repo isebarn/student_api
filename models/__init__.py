@@ -34,6 +34,8 @@ class DateTimeField(_DateTimeField):
     class ISOFormat(DateTime):
         def format(self, value):
             try:
+                if isinstance(value, datetime):
+                    return value.isoformat()
                 return value.get("$date")
             except ValueError as ve:
                 raise MarshallingError(ve)
@@ -105,7 +107,21 @@ class Extended(Document):
                 *args, **{k: v for k, v in kwargs.items() if not isinstance(v, dict)}
             )
             for key, value in self._fields.items():
-                if isinstance(value, ReferenceField) and key in kwargs:
+
+                if isinstance(value, ListField) and key in kwargs:
+
+                    setattr(
+                        self,
+                        key,
+                        [
+                            ObjectId(x.get("id"))
+                            if isinstance(x, dict)
+                            else ObjectId(x)
+                            for x in kwargs[key]
+                        ],
+                    )
+
+                elif isinstance(value, ReferenceField) and key in kwargs:
                     # link to existing
                     if isinstance(kwargs[key], Document):
                         setattr(self, key, kwargs[key])
@@ -362,8 +378,7 @@ class Extended(Document):
                     },
                 )
 
-                # values = {x["_id"]: x for x in values}
-
+                values = {x["id"]: x for x in values}
                 for item in data:
                     item.update({key: [values[x] for x in item[key]]})
 
@@ -405,6 +420,7 @@ class Extended(Document):
 
         return data
 
+
 class Program(Extended):
     country = StringField()
     description = StringField()
@@ -432,18 +448,51 @@ class FlightInfo(Extended):
 
 class HostFamily(Extended):
     number = IntField()
-    first_name = StringField()
-    last_name = StringField()
+    family_name = StringField()
+    father_first_name = StringField()
+    father_last_name = StringField()
+    father_age = IntField()
+    father_occupation = StringField()
+    father_email = StringField()
+    mother_first_name = StringField()
+    mother_last_name = StringField()
+    mother_age = IntField()
+    mother_occupation = StringField()
+    mother_email = StringField()
     address_line_1 = StringField()
     address_line_2 = StringField()
     address_city = StringField()
     address_postal_code = StringField()
     address_country = StringField()
-    email = StringField()
     phone_extension = StringField()
     phone_number = StringField()
+    child_1_name = StringField()
+    child_1_gender = StringField()
+    child_2_name = StringField()
+    child_2_gender = StringField()
+    child_3_name = StringField()
+    child_3_gender = StringField()
+    child_4_name = StringField()
+    child_4_gender = StringField()
+    pet_1 = StringField()
+    pet_1_inside = BooleanField(default=False)
+    pet_2 = StringField()
+    pet_2_inside = BooleanField(default=False)
+    pet_3 = StringField()
+    pet_3_inside = BooleanField(default=False)
+    pet_4 = StringField()
+    pet_4_inside = BooleanField(default=False)
+    smoking = BooleanField(default=False)
     airport = ReferenceField(Airport, reverse_delete_rule=NULLIFY)
     profile_link = StringField()
+    school_name = StringField()
+    school_address_line_1 = StringField()
+    school_address_line_2 = StringField()
+    school_address_city = StringField()
+    school_address_postal_code = StringField()
+    school_address_country = StringField()
+    school_contact = StringField()
+    school_email = StringField()
 
 
 class Account(Extended):
@@ -502,23 +551,31 @@ class StudentPersonalData(Extended):
     interview = DateTimeField()
 
 
+class Child(Extended):
+    name = StringField()
+
+
+class Parent(Extended):
+    name = StringField()
+    child = ListField(ReferenceField(Child))
+
 
 # def config():
-    # signals.pre_save.connect(Class.pre_save, sender=Class)
-    # signals.post_save.connect(Class.post_save, sender=Class)
+# signals.pre_save.connect(Class.pre_save, sender=Class)
+# signals.post_save.connect(Class.post_save, sender=Class)
 
-    # seed
-    # logging.info("Seeding database")
-    # seed = load(open("models/seed.json"))
+# seed
+# logging.info("Seeding database")
+# seed = load(open("models/seed.json"))
 
-    # helper method to remove "_id" and "_cls" so I can compare json objects
-    # from the db
-    # def remove_meta_from_dict_item(item):
-    #     item.pop("_cls")
-    #     item.pop("_id")
-    #     for key, value in item.items():
-    #         if isinstance(value, dict):
-    #             remove_meta_from_dict_item(value)
+# helper method to remove "_id" and "_cls" so I can compare json objects
+# from the db
+# def remove_meta_from_dict_item(item):
+#     item.pop("_cls")
+#     item.pop("_id")
+#     for key, value in item.items():
+#         if isinstance(value, dict):
+#             remove_meta_from_dict_item(value)
 
 
 # config()

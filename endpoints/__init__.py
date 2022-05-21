@@ -54,6 +54,12 @@ account_full = api.model('account', models.Account.model(api))
 student_personal_data_base = api.model('student_personal_data_base', models.StudentPersonalData.base())
 student_personal_data_reference = api.model('student_personal_data_reference', models.StudentPersonalData.reference())
 student_personal_data_full = api.model('student_personal_data', models.StudentPersonalData.model(api))
+child_base = api.model('child_base', models.Child.base())
+child_reference = api.model('child_reference', models.Child.reference())
+child_full = api.model('child', models.Child.model(api))
+parent_base = api.model('parent_base', models.Parent.base())
+parent_reference = api.model('parent_reference', models.Parent.reference())
+parent_full = api.model('parent', models.Parent.model(api))
 
 
 @api.route("/program")
@@ -69,7 +75,7 @@ class ProgramController(Resource):
 
     @api.marshal_with(api.models.get('program'), skip_none=True)
     def put(self):
-        data = models.Program(**request.get_json()).save()
+        data = models.Program.update(**request.get_json())
         return data.to_json()
 
     @api.marshal_with(api.models.get('program'), skip_none=True)
@@ -107,7 +113,7 @@ class AirportController(Resource):
 
     @api.marshal_with(api.models.get('airport'), skip_none=True)
     def put(self):
-        data = models.Airport(**request.get_json()).save()
+        data = models.Airport.update(**request.get_json())
         return data.to_json()
 
     @api.marshal_with(api.models.get('airport'), skip_none=True)
@@ -145,7 +151,7 @@ class FlightInfoController(Resource):
 
     @api.marshal_with(api.models.get('flight_info'), skip_none=True)
     def put(self):
-        data = models.FlightInfo(**request.get_json()).save()
+        data = models.FlightInfo.update(**request.get_json())
         return data.to_json()
 
     @api.marshal_with(api.models.get('flight_info'), skip_none=True)
@@ -183,7 +189,7 @@ class HostFamilyController(Resource):
 
     @api.marshal_with(api.models.get('host_family'), skip_none=True)
     def put(self):
-        data = models.HostFamily(**request.get_json()).save()
+        data = models.HostFamily.update(**request.get_json())
         return data.to_json()
 
     @api.marshal_with(api.models.get('host_family'), skip_none=True)
@@ -221,7 +227,7 @@ class AccountController(Resource):
 
     @api.marshal_with(api.models.get('account'), skip_none=True)
     def put(self):
-        data = models.Account(**request.get_json()).save()
+        data = models.Account.update(**request.get_json())
         return data.to_json()
 
     @api.marshal_with(api.models.get('account'), skip_none=True)
@@ -259,7 +265,7 @@ class StudentPersonalDataController(Resource):
 
     @api.marshal_with(api.models.get('student_personal_data'), skip_none=True)
     def put(self):
-        data = models.StudentPersonalData(**request.get_json()).save()
+        data = models.StudentPersonalData.update(**request.get_json())
         return data.to_json()
 
     @api.marshal_with(api.models.get('student_personal_data'), skip_none=True)
@@ -283,4 +289,80 @@ class BaseStudentPersonalDataController(Resource):
     @api.marshal_list_with(api.models.get('student_personal_data_reference'))
     def get(self):
         return [x.to_json(False) for x in models.StudentPersonalData.get(**request.args)]
+
+@api.route("/child")
+class ChildController(Resource):
+
+    @api.marshal_list_with(api.models.get('child'), skip_none=True)
+    def get(self):
+        return models.Child.fetch(request.args)
+
+    @api.marshal_with(api.models.get('child'), skip_none=True)
+    def post(self):
+        return models.Child(**request.get_json()).to_json()
+
+    @api.marshal_with(api.models.get('child'), skip_none=True)
+    def put(self):
+        data = models.Child.update(**request.get_json())
+        return data.to_json()
+
+    @api.marshal_with(api.models.get('child'), skip_none=True)
+    def patch(self):
+        return models.Child.set(**request.get_json()).to_json()
+
+
+@api.route("/child/<child_id>")
+class BaseChildController(Resource):
+    @api.marshal_with(api.models.get("child"), skip_none=True)
+    def get(self, child_id):
+        return models.Child.objects.get(id=child_id)
+
+    def delete(self, child_id):
+        return models.Child.get(id=child_id).delete()
+
+
+@api.route("/child/base")
+class BaseChildController(Resource):
+
+    @api.marshal_list_with(api.models.get('child_reference'))
+    def get(self):
+        return [x.to_json(False) for x in models.Child.get(**request.args)]
+
+@api.route("/parent")
+class ParentController(Resource):
+
+    @api.marshal_list_with(api.models.get('parent'), skip_none=True)
+    def get(self):
+        return models.Parent.fetch(request.args)
+
+    @api.marshal_with(api.models.get('parent'), skip_none=True)
+    def post(self):
+        return models.Parent(**request.get_json()).to_json()
+
+    @api.marshal_with(api.models.get('parent'), skip_none=True)
+    def put(self):
+        data = models.Parent.update(**request.get_json())
+        return data.to_json()
+
+    @api.marshal_with(api.models.get('parent'), skip_none=True)
+    def patch(self):
+        return models.Parent.set(**request.get_json()).to_json()
+
+
+@api.route("/parent/<parent_id>")
+class BaseParentController(Resource):
+    @api.marshal_with(api.models.get("parent"), skip_none=True)
+    def get(self, parent_id):
+        return models.Parent.objects.get(id=parent_id)
+
+    def delete(self, parent_id):
+        return models.Parent.get(id=parent_id).delete()
+
+
+@api.route("/parent/base")
+class BaseParentController(Resource):
+
+    @api.marshal_list_with(api.models.get('parent_reference'))
+    def get(self):
+        return [x.to_json(False) for x in models.Parent.get(**request.args)]
 

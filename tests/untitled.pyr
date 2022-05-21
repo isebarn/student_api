@@ -1,0 +1,46 @@
+# http://docs.python-requests.org/en/master/user/quickstart/
+
+env_file = ''
+
+###env
+BASE="127.0.0.1:5000/api/{}"
+###env
+
+get(BASE.format("student_personal_data"), name='student_personal_data')
+get(BASE.format("airport"), name='airport')
+get(BASE.format("program"), name='program')
+
+
+post(BASE.format("student_personal_data"), name='student_personal_data', tabname="first", json={
+    "address_city": "FIRST",
+    "address_country": "Iceland",
+    "address_line_1": "Mosagata 3",
+    "address_postal_code": "210",
+    "airport": airport.json()[0]["id"],
+    "program": program.json()[0]["id"]
+})
+
+put(BASE.format("student_personal_data"), tabname='student_personal_data_put', json={
+    "address_city": "first",
+    "airport": airport.json()[0]["id"],
+    "program": program.json()[0]["id"],
+    "id": student_personal_data.json()["id"]
+})
+
+post(BASE.format("student_personal_data"), name='student_personal_data', tabname="second", json={
+    "address_city": "SECOND",
+    "address_country": "Iceland",
+    "address_line_1": "Mosagata 3",
+    "address_postal_code": "210",
+    "airport": airport.json()[0]["id"],
+    "program": program.json()[0]["id"]
+})
+
+patch(BASE.format("student_personal_data"), tabname='student_personal_data_patch', json={
+    "id": student_personal_data.json()["id"],
+    "address_city": "second",
+})
+
+
+
+

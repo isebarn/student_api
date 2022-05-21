@@ -11,7 +11,7 @@ class CONTROLLERController(Resource):
 
     @api.marshal_with(api.models.get('RESTX_MODEL'), skip_none=True)
     def put(self):
-        data = models.MODEL(**request.get_json()).save()
+        data = models.MODEL.update(**request.get_json())
         return data.to_json()
 
     @api.marshal_with(api.models.get('RESTX_MODEL'), skip_none=True)
