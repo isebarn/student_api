@@ -16,7 +16,7 @@ post(BASE.format("student_personal_data"), name='student_personal_data', tabname
     "address_country": "Iceland",
     "address_line_1": "Mosagata 3",
     "address_postal_code": "210",
-    "airport": airport.json()[0]["id"],
+    #"airport": airport.json()[0]["id"],
     "program": program.json()[0]["id"]
 })
 
