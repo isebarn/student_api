@@ -77,20 +77,16 @@ table host_family {
 
 table account {
   id integer [pk, increment]
-  program integer [ref: > program.id]
-  deposit_prog float
+  diet float
+  region float
+  other_reason varchar
+  other float
+  credits_reason varchar
+  credits float
+  deposit float
   second_installment float
   third_installment float
   final_installment float
-  total_prog float
-  credit_1 float
-  credit_2 float
-  formula varchar
-  deposit_paid float
-  second_installment_paid float
-  third_installment_paid float
-  final_installment_paid float
-  balance_owed float
 }
 
 table student_personal_data {
@@ -102,6 +98,7 @@ table student_personal_data {
   program integer [ref: > program.id]
   airport integer [ref: > airport.id]
   host_family integer [ref: > host_family.id]
+  account integer [ref: > account.id]
   date_of_application datetime
   date_of_birth datetime
   address_line_1 varchar
@@ -132,3 +129,4 @@ table student_personal_data {
   allergies varchar
   interview datetime
 }
+

@@ -507,20 +507,16 @@ class HostFamily(Extended):
 
 
 class Account(Extended):
-    program = ReferenceField(Program, reverse_delete_rule=NULLIFY)
-    deposit_prog = FloatField()
+    diet = FloatField()
+    region = FloatField()
+    other_reason = StringField()
+    other = FloatField()
+    credits_reason = StringField()
+    credits = FloatField()
+    deposit = FloatField()
     second_installment = FloatField()
     third_installment = FloatField()
     final_installment = FloatField()
-    total_prog = FloatField()
-    credit_1 = FloatField()
-    credit_2 = FloatField()
-    formula = StringField()
-    deposit_paid = FloatField()
-    second_installment_paid = FloatField()
-    third_installment_paid = FloatField()
-    final_installment_paid = FloatField()
-    balance_owed = FloatField()
 
 
 class StudentPersonalData(Extended):
@@ -531,6 +527,7 @@ class StudentPersonalData(Extended):
     program = ReferenceField(Program, reverse_delete_rule=NULLIFY)
     airport = ReferenceField(Airport, reverse_delete_rule=NULLIFY)
     host_family = ReferenceField(HostFamily, reverse_delete_rule=NULLIFY)
+    account = ReferenceField(Account, reverse_delete_rule=NULLIFY)
     date_of_application = DateTimeField()
     date_of_birth = DateTimeField()
     address_line_1 = StringField()
@@ -562,22 +559,23 @@ class StudentPersonalData(Extended):
     interview = DateTimeField()
 
 
+
 # def config():
-# signals.pre_save.connect(Class.pre_save, sender=Class)
-# signals.post_save.connect(Class.post_save, sender=Class)
+    # signals.pre_save.connect(Class.pre_save, sender=Class)
+    # signals.post_save.connect(Class.post_save, sender=Class)
 
-# seed
-# logging.info("Seeding database")
-# seed = load(open("models/seed.json"))
+    # seed
+    # logging.info("Seeding database")
+    # seed = load(open("models/seed.json"))
 
-# helper method to remove "_id" and "_cls" so I can compare json objects
-# from the db
-# def remove_meta_from_dict_item(item):
-#     item.pop("_cls")
-#     item.pop("_id")
-#     for key, value in item.items():
-#         if isinstance(value, dict):
-#             remove_meta_from_dict_item(value)
+    # helper method to remove "_id" and "_cls" so I can compare json objects
+    # from the db
+    # def remove_meta_from_dict_item(item):
+    #     item.pop("_cls")
+    #     item.pop("_id")
+    #     for key, value in item.items():
+    #         if isinstance(value, dict):
+    #             remove_meta_from_dict_item(value)
 
 
 # config()
