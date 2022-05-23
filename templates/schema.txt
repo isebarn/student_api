@@ -114,6 +114,7 @@ table student_personal_data {
   average_grades varchar
   father_first_name varchar
   father_last_name varchar 
+  father_email varchar 
   father_address_line_1 varchar
   father_address_line_2 varchar
   father_address_city varchar
@@ -121,6 +122,7 @@ table student_personal_data {
   father_address_country varchar
   mother_first_name varchar
   mother_last_name varchar 
+  mother_email varchar 
   mother_address_line_1 varchar
   mother_address_line_2 varchar
   mother_address_city varchar
