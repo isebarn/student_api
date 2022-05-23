@@ -338,14 +338,12 @@ class Extended(Document):
                 if isinstance(instance, ReferenceField)
             },
             **{
-                field: Raw()
-                #     Nested(
-                #         api.models.get(
-                #             instance.field.document_type_obj._class_name.lower()
-                #         ),
-                #         skip_none=True,
-                #     ),
-                # )
+                field: List(
+                    Nested(
+                        api.models.get(field),
+                        skip_none=True,
+                    ),
+                )
                 for field, instance in cls._fields.items()
                 if isinstance(instance, ListField)
             },

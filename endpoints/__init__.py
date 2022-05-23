@@ -98,7 +98,7 @@ class BaseProgramController(Resource):
 
     @api.marshal_list_with(api.models.get('program_reference'))
     def get(self):
-        return [x.to_json(False) for x in models.Program.get(**request.args)]
+        return [x.to_json() for x in models.Program.get(**request.args)]
 
 @api.route("/airport")
 class AirportController(Resource):
@@ -136,7 +136,7 @@ class BaseAirportController(Resource):
 
     @api.marshal_list_with(api.models.get('airport_reference'))
     def get(self):
-        return [x.to_json(False) for x in models.Airport.get(**request.args)]
+        return [x.to_json() for x in models.Airport.get(**request.args)]
 
 @api.route("/flight_info")
 class FlightInfoController(Resource):
@@ -174,7 +174,7 @@ class BaseFlightInfoController(Resource):
 
     @api.marshal_list_with(api.models.get('flight_info_reference'))
     def get(self):
-        return [x.to_json(False) for x in models.FlightInfo.get(**request.args)]
+        return [x.to_json() for x in models.FlightInfo.get(**request.args)]
 
 @api.route("/host_family_child")
 class HostFamilyChildController(Resource):
@@ -212,7 +212,7 @@ class BaseHostFamilyChildController(Resource):
 
     @api.marshal_list_with(api.models.get('host_family_child_reference'))
     def get(self):
-        return [x.to_json(False) for x in models.HostFamilyChild.get(**request.args)]
+        return [x.to_json() for x in models.HostFamilyChild.get(**request.args)]
 
 @api.route("/host_family_pet")
 class HostFamilyPetController(Resource):
@@ -250,7 +250,7 @@ class BaseHostFamilyPetController(Resource):
 
     @api.marshal_list_with(api.models.get('host_family_pet_reference'))
     def get(self):
-        return [x.to_json(False) for x in models.HostFamilyPet.get(**request.args)]
+        return [x.to_json() for x in models.HostFamilyPet.get(**request.args)]
 
 @api.route("/host_family")
 class HostFamilyController(Resource):
@@ -288,7 +288,7 @@ class BaseHostFamilyController(Resource):
 
     @api.marshal_list_with(api.models.get('host_family_reference'))
     def get(self):
-        return [x.to_json(False) for x in models.HostFamily.get(**request.args)]
+        return [x.to_json() for x in models.HostFamily.get(**request.args)]
 
 @api.route("/account")
 class AccountController(Resource):
@@ -326,7 +326,7 @@ class BaseAccountController(Resource):
 
     @api.marshal_list_with(api.models.get('account_reference'))
     def get(self):
-        return [x.to_json(False) for x in models.Account.get(**request.args)]
+        return [x.to_json() for x in models.Account.get(**request.args)]
 
 @api.route("/student_personal_data")
 class StudentPersonalDataController(Resource):
@@ -364,5 +364,5 @@ class BaseStudentPersonalDataController(Resource):
 
     @api.marshal_list_with(api.models.get('student_personal_data_reference'))
     def get(self):
-        return [x.to_json(False) for x in models.StudentPersonalData.get(**request.args)]
+        return [x.to_json() for x in models.StudentPersonalData.get(**request.args)]
 
