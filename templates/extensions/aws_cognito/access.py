@@ -20,6 +20,7 @@ from endpoints import Resource
 from extensions.aws_cognito.methods import authenticate
 from extensions.aws_cognito.methods import schema_attributes
 from extensions.aws_cognito.methods import user
+from extensions.aws_cognito.methods import sign_up
 
 
 api = Namespace("aws_cognito/access")
@@ -62,6 +63,14 @@ class UserController(Resource):
 
         token = token.replace("Bearer ", "")
         return user(token)
+
+    def post(self):
+        try:
+            sign_up(**request.get_json())
+            return {"success": True}
+
+        except Exception as e:
+            return {"success": False, "message": str(e)}
 
 
 @api.route("/login")

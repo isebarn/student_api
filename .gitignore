@@ -2,3 +2,4 @@ student.sublime-workspace
 student.sublime-project
 *.pdf
 .env
+.dev

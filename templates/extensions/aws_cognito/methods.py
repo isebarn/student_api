@@ -1,3 +1,4 @@
+import os
 from extensions.aws_cognito import client
 from extensions.aws_cognito import pool_id
 from extensions.aws_cognito import client_id
