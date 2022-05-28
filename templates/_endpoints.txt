@@ -1,6 +1,8 @@
 # Standard library imports
 import os
 from datetime import datetime
+from requests import post
+from requests import get
 
 # Third party imports
 from flask import Flask
@@ -20,6 +22,7 @@ from flask_restx.fields import Raw
 # Local application imports
 import models
 
+
 class Resource(_Resource):
     dispatch_requests = []
 
@@ -27,8 +30,23 @@ class Resource(_Resource):
         super(Resource, self).__init__(api, args, kwargs)
 
     def dispatch_request(self, *args, **kwargs):
+
         tmp = request.args.to_dict()
         request.args = tmp
+
+        if request.method == "POST":
+            json = request.get_json()
+
+            for key, value in json.items():
+                if isinstance(value, dict) and key in routes:
+                    if "id" in value:
+                        json[key] = value["id"]
+
+                    else:
+                        item = post(
+                            "http://localhost:5000/api/{}".format(key), json=value
+                        )
+                        json[key] = item.json()["id"]
 
         for method in self.dispatch_requests:
             method(self, args, kwargs)

@@ -1,80 +1,95 @@
-table program {
-  id integer [pk, increment]
-  country varchar
-  description varchar
-  code varchar
-  program_price float
-  price float
-}
-
+// embed
 table airport {
   id integer [pk, increment]
   name varchar
   code varchar
 }
 
-table flight_info {
+// embed
+table flight {
   id integer [pk, increment]
-  airport integer [ref: > airport.id]
-  depart_date datetime
-  depart_time varchar
-  depart_flight_number varchar  
-  depart_airline varchar
-  return_date datetime
-  return_time varchar
-  return_flight_number varchar  
-  return_airline varchar
+  date datetime
+  time varchar
+  flight_number varchar  
+  airline varchar  
 }
 
-table host_family_child {
+// embed
+table flight_info {
+  id integer [pk, increment]
+  airport integer [ref: >> airport.id]
+  depart_flight [ref: >> flight.id]
+  return_flight [ref: >> flight.id]
+}
+
+// embed
+table child {
   id integer [pk, increment]
   name varchar
   gender varchar
 }
 
-table host_family_pet {
+// embed
+table pet {
   id integer [pk, increment]
   name varchar
   type varchar
   inside boolean
 }
 
-table host_family {
+// embed
+table host_parent {
   id integer [pk, increment]
-  number integer
-  family_name varchar
-  father_first_name varchar
-  father_last_name varchar 
-  father_age integer
-  father_occupation varchar
-  father_email varchar
-  mother_first_name varchar
-  mother_last_name varchar 
-  mother_age integer
-  mother_occupation varchar
-  mother_email varchar
-  address_line_1 varchar
-  address_line_2 varchar
-  address_city varchar
-  address_postal_code varchar
-  address_country varchar
-  phone_extension varchar
-  phone_number varchar
-  host_family_child [ref: < host_family_child.id]
-  host_family_pet [ref: < host_family_pet.id]
-  smoking boolean
-  airport integer [ref: > airport.id]
-  profile_link varchar
-  school_name varchar
-  school_address_line_1 varchar
-  school_address_line_2 varchar
-  school_address_city varchar
-  school_address_postal_code varchar
-  school_address_country varchar  
-  school_contact varchar
-  school_email varchar
+  first_name varchar
+  last_name varchar 
+  age integer
+  occupation varchar
+  email varchar  
 }
 
+// embed
+table address {
+  id integer [pk, increment]
+  line_1 varchar
+  line_2 varchar
+  city varchar
+  postal_code varchar
+  country varchar  
+}
+
+// embed
+table phone {
+  id integer [pk, increment]
+  extension varchar
+  number varchar  
+}
+
+// embed
+table school {
+  id integer [pk, increment]
+  name varchar
+  contact varchar
+  email varchar
+  address [ref: >> address.id]
+}
+
+// embed
+table host_family {
+  id integer [pk, increment]
+  number varchar
+  family_name varchar
+  father [ref: >> host_parent.id]
+  mother [ref: >> host_parent.id]
+  address [ref: >> address.id]
+  phone [ref: >> phone.id]
+  child [ref: << child.id]
+  pet [ref: << pet.id]
+  smoking boolean
+  airport integer [ref: >> airport.id]
+  profile_link varchar
+}
+
+// embed
 table account {
   id integer [pk, increment]
   diet float
@@ -89,46 +104,62 @@ table account {
   final_installment float
 }
 
-table student_personal_data {
+// embed
+table parent {
   id integer [pk, increment]
   first_name varchar
+  last_name varchar 
+  email varchar
+  address [ref: >> address.id] 
+}
+
+table program {
+  id integer [pk, increment]
+  country varchar
+  description varchar
+  code varchar
+  program_price float
+  price float
+}
+
+table student_profile {
+  first_name varchar
   last_name varchar
+  age_on_arrival integer
   gender varchar
   email varchar
+  length_of_stay varchar
+  passport_country varchar
+  passport_number varchar
+  mother_name varchar
+  father_name varchar
+  language varchar
+  letter varchar
+  description varchar
+  imagine varchar
+  submitted boolean
+  interview datetime
   program integer [ref: > program.id]
-  airport integer [ref: > airport.id]
-  host_family integer [ref: > host_family.id]
-  account integer [ref: > account.id]
+}
+
+table student_personal_data {
+  id integer [pk, increment]
+  allergies varchar
+  average_grades varchar
   date_of_application datetime
   date_of_birth datetime
-  address_line_1 varchar
-  address_line_2 varchar
-  address_city varchar
-  address_postal_code varchar
-  address_country varchar
-  phone_extension varchar
-  phone_number varchar
   nationality varchar
   school_name varchar
   school_type varchar
-  average_grades varchar
-  father_first_name varchar
-  father_last_name varchar 
-  father_email varchar 
-  father_address_line_1 varchar
-  father_address_line_2 varchar
-  father_address_city varchar
-  father_address_postal_code varchar
-  father_address_country varchar
-  mother_first_name varchar
-  mother_last_name varchar 
-  mother_email varchar 
-  mother_address_line_1 varchar
-  mother_address_line_2 varchar
-  mother_address_city varchar
-  mother_address_postal_code varchar
-  mother_address_country varchar  
-  allergies varchar
-  interview datetime
+  student_profile integer [ref: > student_profile.id]
+  account integer [ref: >> account.id]
+  address [ref: >> address.id]
+  airport integer [ref: >> airport.id]
+  host_airport integer [ref: >> airport.id]
+  flight_info [ref: >> flight_info.id]
+  father [ref: >> parent.id]
+  mother [ref: >> parent.id]
+  host_family integer [ref: >> host_family.id]
+  phone [ref: >> phone.id]
+  host_school [ref: >> school.id]
 }
-

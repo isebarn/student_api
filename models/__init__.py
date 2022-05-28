@@ -11,7 +11,12 @@ from bson.objectid import ObjectId
 from mongoengine import connect
 from mongoengine import Document
 from mongoengine import ReferenceField
+from mongoengine import DictField
 from mongoengine import ListField
+from mongoengine import MapField
+from mongoengine import EmbeddedDocument as _EmbeddedDocument
+from mongoengine import EmbeddedDocumentField
+from mongoengine import EmbeddedDocumentListField
 from mongoengine import DictField
 from mongoengine import signals
 from mongoengine import NULLIFY
@@ -95,82 +100,38 @@ else:
     )
 
 
+def convert(value):
+    return ObjectId(value) if ObjectId.is_valid(value) else value
+
+
 class Extended(Document):
     meta = {"abstract": True, "allow_inheritance": True}
 
-    def __init__(self, *args, **kwargs):
-        if "id" in kwargs:
-            super(Document, self).__init__(*args, **kwargs)
+    @classmethod
+    def fix_data(cls, key, value):
+        if isinstance(value, list):
+            return [cls.fix_data(key, x) for x in value]
 
-        else:  # Create new document and recursively create or link to existing ReferenceField docs
-            super(Document, self).__init__(
-                *args,
-                **{
-                    k: v
-                    for k, v in kwargs.items()
-                    if not (isinstance(v, dict) or isinstance(v, list))
-                }
-            )
-            for key, value in self._fields.items():
-                if isinstance(value, ListField) and key in kwargs:
-                    for (i, item) in enumerate(kwargs.get(key, [])):
-                        if isinstance(kwargs[key], Document):
-                            continue
+        if isinstance(value, str):
+            return convert(value)
+        elif isinstance(value, dict):
+            if "id" in value:
+                return convert(value["id"])
+            elif isinstance(getattr(cls, key), EmbeddedDocumentField):
+                return getattr(cls, key).document_type_obj(**value)
+            elif isinstance(getattr(cls, key), EmbeddedDocumentListField):
+                return getattr(cls, key).field.document_type_obj(**value)
 
-                        elif isinstance(item, dict) and "id" in item:
-                            kwargs[key][i] = value.field.document_type_obj.objects.get(
-                                id=item["id"]
-                            )
-
-                        elif isinstance(item, str) and ObjectId.is_valid(item):
-                            kwargs[key][i] = value.field.document_type_obj.objects.get(
-                                id=item
-                            )
-
-                        else:
-                            kwargs[key][i] = value.field.document_type_obj(**item)
-
-                    setattr(self, key, kwargs[key])
-
-                if isinstance(value, ReferenceField) and key in kwargs:
-                    # link to existing
-                    if isinstance(kwargs[key], Document):
-                        setattr(self, key, kwargs[key])
-
-                    # pass entire object
-                    if "id" in kwargs[key]:
-                        setattr(
-                            self,
-                            key,
-                            value.document_type_obj.objects.get(id=kwargs[key]["id"]),
-                        )
-
-                    # pass ObjectId string of object
-                    elif ObjectId.is_valid(kwargs.get(key, "")):
-                        setattr(
-                            self,
-                            key,
-                            value.document_type_obj.objects.get(id=kwargs[key]),
-                        )
-
-                    # create new ReferenceField
-                    else:
-                        setattr(
-                            self,
-                            key,
-                            value.document_type_obj(**{key: {"id": kwargs[key]}}),
-                        )
-
-                # special for Raw fields that are wildcards
-                elif isinstance(value, DictField) and isinstance(kwargs.get(key), dict):
-                    setattr(self, key, kwargs.get(key))
-
-            self.save()
+        else:
+            return value
 
     def to_json(self):
         def f(v):
             if isinstance(v, dict) and "$oid" in v:
                 return v["$oid"]
+
+            elif isinstance(v, dict) and "$date" in v:
+                return v["$date"]
             elif isinstance(v, list):
                 return list(map(lambda x: f(x), v))
             else:
@@ -182,66 +143,33 @@ class Extended(Document):
         return data
 
     @classmethod
-    def set(cls, *args, **kwargs):
-        id = kwargs.pop("id")
-        item = cls.objects.get(id=id)
-
-        # ???
-        for key, value in kwargs.items():
-
-            if isinstance(value, list) and any(value):
-                string_object_ids = [
-                    x.get("id") if isinstance(x, dict) else x for x in value
-                ]
-                if all(map(lambda x: ObjectId.is_valid(x), string_object_ids)):
-                    kwargs[key] = [ObjectId(x) for x in string_object_ids]
-
-            elif isinstance(value, dict) and "id" in value:
-                kwargs[key] = value["id"]
-
-        cls.objects(id=id).update_one(
-            **{
-                key.replace("$", "")
-                if key.startswith("$")
-                else "set__{}".format(key): (
-                    ObjectId(value) if ObjectId.is_valid(value) else value
-                )
-                for key, value in kwargs.items()
-            }
-        )
-
-        return cls.objects.get(id=id)
+    def post(cls, data):
+        item = cls(**data)
+        item.save()
+        return item.to_json()
 
     @classmethod
-    def update(cls, *args, **kwargs):
-        id = kwargs.pop("id")
-        item = cls.objects.get(id=id)
-
-        # ???
-        for key, value in kwargs.items():
-            if isinstance(value, list) and any(value):
-                string_object_ids = [x.get("id", {}).get("$oid") for x in value]
-                if all(map(lambda x: ObjectId.is_valid(x), string_object_ids)):
-                    value = [ObjectId(x) for x in string_object_ids]
-
-            elif isinstance(value, dict) and "id" in value:
-                kwargs[key] = value["id"]
+    def put(cls, data):
+        item = cls.objects.get(id=data.pop("id"))
 
         [delattr(item, k) for k, v in cls._fields.items() if k not in ["_cls", "id"]]
+        for key, value in data.items():
+            setattr(item, key, cls.fix_data(key, value))
 
         item.save()
 
-        cls.objects(id=id).update_one(
-            **{
-                key.replace("$", "")
-                if key.startswith("$")
-                else "set__{}".format(key): (
-                    ObjectId(value) if ObjectId.is_valid(value) else value
-                )
-                for key, value in kwargs.items()
-            }
-        )
-        return cls.objects.get(id=id)
+        return item.to_json()
+
+    @classmethod
+    def patch(cls, data):
+        item = cls.objects.get(id=data.pop("id"))
+
+        for key, value in data.items():
+            setattr(item, key, cls.fix_data(key, value))
+
+        item.save()
+
+        return item.to_json()
 
     @classmethod
     def get(cls, *args, **kwargs):
@@ -273,19 +201,24 @@ class Extended(Document):
 
         filters = {}
         for query, search in kwargs.items():
+
             if query.startswith("$"):
                 continue
 
-            filters.update(
-                {
-                    key: list(set(value) & set(filters.get(key, value)))
-                    if isinstance(value, list)
-                    else value
-                    for key, value in recursively_query(
-                        cls, query, search, True
-                    ).items()
-                }
-            )
+            elif query.split("__")[0] not in cls._reference_fields():
+                filters.update({query: search})
+
+            else:
+                filters.update(
+                    {
+                        key: list(set(value) & set(filters.get(key, value)))
+                        if isinstance(value, list)
+                        else value
+                        for key, value in recursively_query(
+                            cls, query, search, True
+                        ).items()
+                    }
+                )
 
         return (
             cls.objects(**filters)
@@ -336,6 +269,8 @@ class Extended(Document):
                 field: Nested(api.models.get(field), skip_none=True)
                 for field, instance in cls._fields.items()
                 if isinstance(instance, ReferenceField)
+                or isinstance(instance, DictField)
+                or isinstance(instance, EmbeddedDocumentField)
             },
             **{
                 field: List(
@@ -433,78 +368,104 @@ class Extended(Document):
         return data
 
 
-class Program(Extended):
-    country = StringField()
-    description = StringField()
-    code = StringField()
-    program_price = FloatField()
-    price = FloatField()
+class EmbeddedDocument(_EmbeddedDocument):
+    meta = {"abstract": True, "allow_inheritance": True}
+
+    @classmethod
+    def base(cls):
+        return {
+            **{
+                key: getattr(cls, key).marshal
+                for key, value in list(cls._fields.items())
+                if hasattr(getattr(cls, key), "marshal")
+            }
+        }
+
+    @classmethod
+    def reference(cls):
+        return {
+            **cls.base(),
+        }
+
+    @classmethod
+    def model(cls, api):
+        return {
+            **cls.base(),
+        }
 
 
-class Airport(Extended):
+class Airport(EmbeddedDocument):
     name = StringField()
     code = StringField()
 
 
-class FlightInfo(Extended):
-    airport = ReferenceField(Airport, reverse_delete_rule=NULLIFY)
-    depart_date = DateTimeField()
-    depart_time = StringField()
-    depart_flight_number = StringField()
-    depart_airline = StringField()
-    return_date = DateTimeField()
-    return_time = StringField()
-    return_flight_number = StringField()
-    return_airline = StringField()
+class Flight(EmbeddedDocument):
+    date = DateTimeField()
+    time = StringField()
+    flight_number = StringField()
+    airline = StringField()
 
 
-class HostFamilyChild(Extended):
+class FlightInfo(EmbeddedDocument):
+    airport = EmbeddedDocumentField(Airport)
+    depart_flight = EmbeddedDocumentField(Flight)
+    return_flight = EmbeddedDocumentField(Flight)
+
+
+class Child(EmbeddedDocument):
     name = StringField()
     gender = StringField()
 
 
-class HostFamilyPet(Extended):
+class Pet(EmbeddedDocument):
     name = StringField()
     type = StringField()
     inside = BooleanField(default=False)
 
 
-class HostFamily(Extended):
-    number = IntField()
+class HostParent(EmbeddedDocument):
+    first_name = StringField()
+    last_name = StringField()
+    age = IntField()
+    occupation = StringField()
+    email = StringField()
+
+
+class Address(EmbeddedDocument):
+    line_1 = StringField()
+    line_2 = StringField()
+    city = StringField()
+    postal_code = StringField()
+    country = StringField()
+
+
+class Phone(EmbeddedDocument):
+    extension = StringField()
+    number = StringField()
+
+
+class School(EmbeddedDocument):
+    name = StringField()
+    contact = StringField()
+    email = StringField()
+    address = EmbeddedDocumentField(Address)
+
+
+class HostFamily(EmbeddedDocument):
+    number = StringField()
     family_name = StringField()
-    father_first_name = StringField()
-    father_last_name = StringField()
-    father_age = IntField()
-    father_occupation = StringField()
-    father_email = StringField()
-    mother_first_name = StringField()
-    mother_last_name = StringField()
-    mother_age = IntField()
-    mother_occupation = StringField()
-    mother_email = StringField()
-    address_line_1 = StringField()
-    address_line_2 = StringField()
-    address_city = StringField()
-    address_postal_code = StringField()
-    address_country = StringField()
-    phone_extension = StringField()
-    phone_number = StringField()
-    host_family_child = ListField(ReferenceField(HostFamilyChild))
-    host_family_pet = ListField(ReferenceField(HostFamilyPet))
+    father = EmbeddedDocumentField(HostParent)
+    mother = EmbeddedDocumentField(HostParent)
+    address = EmbeddedDocumentField(Address)
+    phone = EmbeddedDocumentField(Phone)
+    child = EmbeddedDocumentListField(Child)
+    pet = EmbeddedDocumentListField(Pet)
     smoking = BooleanField(default=False)
-    airport = ReferenceField(Airport, reverse_delete_rule=NULLIFY)
+    airport = EmbeddedDocumentField(Airport)
     profile_link = StringField()
-    school_name = StringField()
-    school_address_line_1 = StringField()
-    school_address_line_2 = StringField()
-    school_address_city = StringField()
-    school_address_postal_code = StringField()
-    school_address_country = StringField()
-    school_contact = StringField()
-    school_email = StringField()
 
 
-class Account(Extended):
+class Account(EmbeddedDocument):
     diet = FloatField()
     region = FloatField()
     other_reason = StringField()
@@ -517,65 +478,78 @@ class Account(Extended):
     final_installment = FloatField()
 
 
-class StudentPersonalData(Extended):
+class Parent(EmbeddedDocument):
     first_name = StringField()
     last_name = StringField()
+    email = StringField()
+    address = EmbeddedDocumentField(Address)
+
+
+class Program(Extended):
+    country = StringField()
+    description = StringField()
+    code = StringField()
+    program_price = FloatField()
+    price = FloatField()
+
+
+class StudentProfile(Extended):
+    first_name = StringField()
+    last_name = StringField()
+    age_on_arrival = IntField()
     gender = StringField()
     email = StringField()
+    length_of_stay = StringField()
+    passport_country = StringField()
+    passport_number = StringField()
+    mother_name = StringField()
+    father_name = StringField()
+    language = StringField()
+    letter = StringField()
+    description = StringField()
+    imagine = StringField()
+    submitted = BooleanField(default=False)
+    interview = DateTimeField()
     program = ReferenceField(Program, reverse_delete_rule=NULLIFY)
-    airport = ReferenceField(Airport, reverse_delete_rule=NULLIFY)
-    host_family = ReferenceField(HostFamily, reverse_delete_rule=NULLIFY)
-    account = ReferenceField(Account, reverse_delete_rule=NULLIFY)
+
+
+class StudentPersonalData(Extended):
+    allergies = StringField()
+    average_grades = StringField()
     date_of_application = DateTimeField()
     date_of_birth = DateTimeField()
-    address_line_1 = StringField()
-    address_line_2 = StringField()
-    address_city = StringField()
-    address_postal_code = StringField()
-    address_country = StringField()
-    phone_extension = StringField()
-    phone_number = StringField()
     nationality = StringField()
     school_name = StringField()
     school_type = StringField()
-    average_grades = StringField()
-    father_first_name = StringField()
-    father_last_name = StringField()
-    father_email = StringField()
-    father_address_line_1 = StringField()
-    father_address_line_2 = StringField()
-    father_address_city = StringField()
-    father_address_postal_code = StringField()
-    father_address_country = StringField()
-    mother_first_name = StringField()
-    mother_last_name = StringField()
-    mother_email = StringField()
-    mother_address_line_1 = StringField()
-    mother_address_line_2 = StringField()
-    mother_address_city = StringField()
-    mother_address_postal_code = StringField()
-    mother_address_country = StringField()
-    allergies = StringField()
-    interview = DateTimeField()
-
+    student_profile = ReferenceField(StudentProfile, reverse_delete_rule=NULLIFY)
+    account = EmbeddedDocumentField(Account)
+    address = EmbeddedDocumentField(Address)
+    airport = EmbeddedDocumentField(Airport)
+    host_airport = EmbeddedDocumentField(Airport)
+    flight_info = EmbeddedDocumentField(FlightInfo)
+    father = EmbeddedDocumentField(Parent)
+    mother = EmbeddedDocumentField(Parent)
+    host_family = EmbeddedDocumentField(HostFamily)
+    phone = EmbeddedDocumentField(Phone)
+    host_school = EmbeddedDocumentField(School)
 
 
 # def config():
-    # signals.pre_save.connect(Class.pre_save, sender=Class)
-    # signals.post_save.connect(Class.post_save, sender=Class)
+# signals.pre_save.connect(Class.pre_save, sender=Class)
+# signals.post_save.connect(Class.post_save, sender=Class)
 
-    # seed
-    # logging.info("Seeding database")
-    # seed = load(open("models/seed.json"))
+# seed
+# logging.info("Seeding database")
+# seed = load(open("models/seed.json"))
 
-    # helper method to remove "_id" and "_cls" so I can compare json objects
-    # from the db
-    # def remove_meta_from_dict_item(item):
-    #     item.pop("_cls")
-    #     item.pop("_id")
-    #     for key, value in item.items():
-    #         if isinstance(value, dict):
-    #             remove_meta_from_dict_item(value)
+# helper method to remove "_id" and "_cls" so I can compare json objects
+# from the db
+# def remove_meta_from_dict_item(item):
+#     item.pop("_cls")
+#     item.pop("_id")
+#     for key, value in item.items():
+#         if isinstance(value, dict):
+#             remove_meta_from_dict_item(value)
 
 
 # config()
