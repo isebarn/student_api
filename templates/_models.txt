@@ -129,6 +129,9 @@ class Extended(Document):
         def f(v):
             if isinstance(v, dict) and "$oid" in v:
                 return v["$oid"]
+
+            elif isinstance(v, dict) and "$date" in v:
+                return v["$date"]
             elif isinstance(v, list):
                 return list(map(lambda x: f(x), v))
             else:
