@@ -429,6 +429,7 @@ class HostParent(EmbeddedDocument):
     age = IntField()
     occupation = StringField()
     email = StringField()
+    phone = StringField()
 
 
 class Address(EmbeddedDocument):
@@ -449,11 +450,14 @@ class School(EmbeddedDocument):
     contact = StringField()
     email = StringField()
     address = EmbeddedDocumentField(Address)
+    phone = StringField()
+    url = StringField()
 
 
 class HostFamily(EmbeddedDocument):
     number = StringField()
     family_name = StringField()
+    hobbies_activities = StringField()
     father = EmbeddedDocumentField(HostParent)
     mother = EmbeddedDocumentField(HostParent)
     address = EmbeddedDocumentField(Address)
@@ -462,7 +466,8 @@ class HostFamily(EmbeddedDocument):
     pet = EmbeddedDocumentListField(Pet)
     smoking = BooleanField(default=False)
     airport = EmbeddedDocumentField(Airport)
-    profile_link = StringField()
+    distance_from_school = StringField()
+    bank_details = StringField()
 
 
 class Account(EmbeddedDocument):
@@ -534,22 +539,23 @@ class StudentPersonalData(Extended):
     host_school = EmbeddedDocumentField(School)
 
 
+
 # def config():
-# signals.pre_save.connect(Class.pre_save, sender=Class)
-# signals.post_save.connect(Class.post_save, sender=Class)
+    # signals.pre_save.connect(Class.pre_save, sender=Class)
+    # signals.post_save.connect(Class.post_save, sender=Class)
 
-# seed
-# logging.info("Seeding database")
-# seed = load(open("models/seed.json"))
+    # seed
+    # logging.info("Seeding database")
+    # seed = load(open("models/seed.json"))
 
-# helper method to remove "_id" and "_cls" so I can compare json objects
-# from the db
-# def remove_meta_from_dict_item(item):
-#     item.pop("_cls")
-#     item.pop("_id")
-#     for key, value in item.items():
-#         if isinstance(value, dict):
-#             remove_meta_from_dict_item(value)
+    # helper method to remove "_id" and "_cls" so I can compare json objects
+    # from the db
+    # def remove_meta_from_dict_item(item):
+    #     item.pop("_cls")
+    #     item.pop("_id")
+    #     for key, value in item.items():
+    #         if isinstance(value, dict):
+    #             remove_meta_from_dict_item(value)
 
 
 # config()
