@@ -44,7 +44,8 @@ table host_parent {
   last_name varchar 
   age integer
   occupation varchar
-  email varchar  
+  email varchar 
+  phone varchar
 }
 
 // embed
@@ -71,6 +72,8 @@ table school {
   contact varchar
   email varchar
   address [ref: >> address.id]
+  phone varchar
+  url varchar
 }
 
 // embed
@@ -78,6 +81,7 @@ table host_family {
   id integer [pk, increment]
   number varchar
   family_name varchar
+  hobbies_activities varchar
   father [ref: >> host_parent.id]
   mother [ref: >> host_parent.id]
   address [ref: >> address.id]
@@ -86,7 +90,8 @@ table host_family {
   pet [ref: << pet.id]
   smoking boolean
   airport integer [ref: >> airport.id]
-  profile_link varchar
+  distance_from_school varchar
+  bank_details varchar
 }
 
 // embed
@@ -128,17 +133,44 @@ table student_profile {
   age_on_arrival integer
   gender varchar
   email varchar
+  nationality varchar
+  hobbies_interests varchar
   length_of_stay varchar
   passport_country varchar
   passport_number varchar
   mother_name varchar
   father_name varchar
   language varchar
+  region_requested varchar
   letter varchar
   description varchar
   imagine varchar
   submitted boolean
+  can_live_with_animals boolean
+  why_cannot_live_with_animals varchar
   interview datetime
+  special_dietary_needs boolean
+  what_special_dietary_needs varchar
+  subjects varchar
+  present_class varchar
+  what_do_when_leave_school varchar  
+  allergies integer  
+  allergies_explain varchar 
+  eating_disorder boolean
+  what_eating_disorder varchar   
+  medication boolean
+  what_medication varchar  
+  family_school_medical_issues boolean
+  what_family_school_medical_issues varchar  
+  agreement_study boolean
+  agreement_rural boolean
+  agreement_another_student boolean
+  agreement_contact_school boolean
+  agreement_cannot_change_family boolean
+  agreement_change_family_region boolean
+  agreement_town_of_placement boolean
+  agreement_borrow_lend_money boolean
+  agreement_unauthorized_visits boolean
   program integer [ref: > program.id]
 }
 
