@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.11.1)  2 NOV 2022 21:28
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.11.1)  6 NOV 2022 13:05
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -295,41 +295,26 @@ File: ../logo.png Graphic file (type png)
 <use ../logo.png>
 Package pdftex.def Info: ../logo.png  used on input line 7.
 (pdftex.def)             Requested size: 42.67912pt x 42.67926pt.
+ [1
 
-
-! LaTeX Error: There's no line here to end.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.10 ...s letter.\par\smallskip\linebreak\noindent
-                                                   Once we receive the contr...
-
-? ^^D
-Type <return> to proceed, S to scroll future error messages,
-R to run without stopping, Q to run quietly,
-I to insert something, E to edit your file,
-1 or ... or 9 to ignore the next 1 to 9 tokens of input,
-H for help, X to quit.
-? 
-! Emergency stop.
- ...                                              
-                                                  
-l.10 ...s letter.\par\smallskip\linebreak\noindent
-                                                   Once we receive the contr...
-
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
- 
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <../logo.png>] (./pdf.aux)
+Package rerunfilecheck Info: File `pdf.out' has not changed.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
+ ) 
 Here is how much of TeX's memory you used:
- 8337 strings out of 478238
- 130334 string characters out of 5850456
- 414791 words of memory out of 5000000
+ 8341 strings out of 478238
+ 130239 string characters out of 5850456
+ 416791 words of memory out of 5000000
  26506 multiletter control sequences out of 15000+600000
  472249 words of font info for 29 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,4n,63p,431b,118s stack positions out of 5000i,500n,10000p,200000b,80000s
-!  ==> Fatal error occurred, no output PDF file produced!
+ 60i,5n,63p,365b,318s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}</usr/share/texmf-dist/fo
+nts/type1/public/lm/lmr10.pfb>
+Output written on pdf.pdf (1 page, 37951 bytes).
+PDF statistics:
+ 21 PDF objects out of 1000 (max. 8388607)
+ 14 compressed objects within 1 object stream
+ 2 named destinations out of 1000 (max. 500000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+
