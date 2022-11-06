@@ -465,6 +465,7 @@ class HostFamily(EmbeddedDocument):
     child = EmbeddedDocumentListField(Child)
     pet = EmbeddedDocumentListField(Pet)
     smoking = BooleanField(default=False)
+    profile_link = StringField()
     airport = EmbeddedDocumentField(Airport)
     distance_from_school = StringField()
     bank_details = StringField()

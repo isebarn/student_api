@@ -89,6 +89,7 @@ table host_family {
   child [ref: << child.id]
   pet [ref: << pet.id]
   smoking boolean
+  profile_link varchar
   airport integer [ref: >> airport.id]
   distance_from_school varchar
   bank_details varchar

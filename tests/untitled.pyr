@@ -4,7 +4,18 @@ env_file = ''
 
 ###env
 BASE="127.0.0.1:5000/api/{}"
+SUPER="127.0.0.1:5000/{}"
 ###env
+
+post("http://192.168.1.69:1025/aws_cognito/access/login", json={
+    "username": "isebarn182@gmail.com",
+    "password": "asd123"    
+})
+
+post(SUPER.format("aws_cognito/access/login"), json={
+    "username": "isebarn182@gmail.com",
+    "password": "asd123"
+    })
 
 get(BASE.format("student_personal_data"), name='student_personal_data')
 get(BASE.format("airport"), name='airport')
