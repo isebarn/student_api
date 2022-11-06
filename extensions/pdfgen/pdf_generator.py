@@ -20,7 +20,7 @@ def generate_pdf_from_tex(source):
 
 
 def generate_thank_you_letter(key, student, programme):
-    url = f"http://localhost:3000/application?id={key}"
+    url = f"https://student.isebarn.com/application?id={key}"
     href = "\href{visir.is}{god}"
     date_ = date.today().strftime("%B %d, %Y")
     source = preamble
